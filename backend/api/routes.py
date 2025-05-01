@@ -1,18 +1,34 @@
-# backend/api/routes.py
-from fastapi import APIRouter
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from core.encryption import encrypt_data, decrypt_data
+import os
 
-router = APIRouter()
+# Initialize FastAPI app
+app = FastAPI()
 
-@router.post("/send_data")
-def send_data(payload: dict):
-    plaintext = payload.get("data", "Hello, Cyber World!")
-    ciphertext = encrypt_data(plaintext)
-    return {"ciphertext": ciphertext}
+class DataRequest(BaseModel):
+    data: str
 
-@router.post("/use_data")
-def use_data(payload: dict):
-    ciphertext = payload.get("ciphertext")
-    plaintext = decrypt_data(ciphertext)
-    return {"plaintext": plaintext}
+# POST endpoint to encrypt plaintext data
+@app.post("/encrypt")
+def encrypt(request: DataRequest):
+    try:
+        encrypted_data = encrypt_data(request.data)
+        return {"encrypted_data": encrypted_data}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# POST endpoint to decrypt ciphertext
+@app.post("/decrypt")
+def decrypt(request: DataRequest):
+    try:
+        decrypted_data = decrypt_data(request.data)
+        return {"decrypted_data": decrypted_data}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# Root endpoint for health check
+@app.get("/")
+def read_root():
+    return {"message": "Secure Data Processing API is running!"}
 

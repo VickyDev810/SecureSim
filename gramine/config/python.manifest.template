@@ -22,9 +22,8 @@ fs.mounts = [
   { path = "/lib", uri = "file:{{ gramine.runtimedir() }}" },
   { path = "{{ arch_libdir }}", uri = "file:{{ arch_libdir }}" },
   { path = "/usr/{{ arch_libdir }}", uri = "file:/usr/{{ arch_libdir }}" },
-  { path = "/opt/venv", uri = "file:/opt/venv" },
-  { path = "/app/data/input.txt", uri = "file:/app/data/input.txt"},
-  { path = "/app/data/output.txt", uri = "file:/app/data/output.txt"},
+  { path = "/secure-sim/venv/", uri = "file:/secure-sim/venv/" },
+  { path = "/secure-sim/core/", uri = "file:/secure-sim/core/"},
 {% for path in python.get_sys_path(entrypoint) %}
   { path = "{{ path }}", uri = "file:{{ path }}" },
 {% endfor %}
@@ -48,18 +47,15 @@ sgx.trusted_files = [
   "file:{{ gramine.runtimedir() }}/",
   "file:{{ arch_libdir }}/",
   "file:/usr/{{ arch_libdir }}/",
-  "file:/opt/venv/",
-  "file:/opt/venv/bin/",
-  "file:/opt/venv/lib/",
-  "file:/opt/venv/lib/python3.12/",
-  "file:/opt/venv/lib/python3.12/site-packages/",
+  "file:/secure-sim/venv/",
+  "file:/secure-sim/venv/bin/",
+  "file:/secure-sim/venv/lib/",
+  "file:/secure-sim/venv/lib/python3.12/",
+  "file:/secure-sim/venv/lib/python3.12/site-packages/",
 
 {% for path in python.get_sys_path(entrypoint) %}
   "file:{{ path }}{{ '/' if path.is_dir() else '' }}",
 {% endfor %}
-  "file:app/app.py",
-  "file:app/core/",
-  "file:data/input.txt",
-  "file:data/output.txt",
-  "file:/app/helper-files/",
+  "file:/secure-sim/core/",
+  "file:/secure-sim/gramine/helper-files/",
 ]

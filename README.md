@@ -1,70 +1,176 @@
 # Secure Sim
-A Deployable Secure Data Processing API (Middleware Layer)
-You'll have a production-ready, Dockerized system that any developer or app can use to securely handle sensitive data — without needing to understand Gramine, encryption, or enclave logic.
 
-🔐 What It Will Do (Features)
-Expose REST API endpoints (via FastAPI):
+**Secure Sim** is a deployable, secure data processing API that ensures sensitive data is encrypted, processed, and stored securely. It provides a robust solution to protect data **in transit**, **at rest**, and **in use** by leveraging **Gramine enclaves** for trusted execution environments. This project exposes FastAPI endpoints for encryption, decryption, and tamper-proof storage, making it easy to integrate into any application requiring secure data handling.
 
-/encrypt: Accepts plaintext data, returns encrypted output
+## Features
 
-/decrypt: Accepts ciphertext, returns plaintext
+- **/encrypt**: Encrypt plaintext data and return the ciphertext.
+- **/decrypt**: Decrypt ciphertext and return the plaintext.
+- **/seal**: Seal data to disk, ensuring tamper-proof storage.
+- **/unseal**: Unseal data back to readable form.
+- **/status**, **/metrics**, **/health** (optional): API health and metrics for monitoring.
+  
+### Benefits:
+- **Data Protection**: Ensures protection of data during transit, at rest, and during computation.
+- **Gramine-Backed Enclave**: Uses **Gramine enclaves** for processing data securely, ensuring sensitive data remains private and tamper-proof.
+- **Easy Integration**: Can be integrated into any application for secure file storage, encryption, or privacy-preserving analytics.
 
-/seal: Seals data to disk (Gramine-secure)
+## Architecture
 
-/unseal: Unseals sealed data back to readable form
+1. **FastAPI**: Exposes RESTful API endpoints for encryption, decryption, and data sealing.
+2. **Gramine Enclaves**: Secure execution environments that ensure sensitive data is processed without exposing it to unauthorized access.
+3. **Encryption & Key Management**: Uses encryption techniques (e.g., **AES**, **RSA**) for protecting data at rest, in transit, and in use.
 
-(Optional): /status, /metrics, /health
+## Requirements
 
-Process requests inside Gramine (SGX-compatible):
+- Docker (for containerization)
+- Gramine (SGX-compatible trusted execution environments)
+- Python 3.9+ 
+- FastAPI
+- Cryptography libraries
 
-Guarantees protection of data in use
+## Installation
 
-Ensures any computation happens in a trusted enclave
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/secure-sim.git
+    cd secure-sim
+    ```
 
-Encrypts and seals files/data for:
+2. Build the Docker container for Gramine:
+    ```bash
+    docker build -t secure-sim-gramine .
+    ```
 
-Data at rest (tamper-proof sealed storage)
+3. (Optional) Build the Docker container for the backend FastAPI:
+    ```bash
+    docker build -t secure-sim-backend .
+    ```
 
-Data in transit (API communication over HTTPS)
+4. Start the Docker containers:
+    ```bash
+    docker-compose up
+    ```
 
-Data in use (within enclave)
+    This will launch both the FastAPI backend and the Gramine container.
 
-Reusable inside any application:
+## Usage
 
-Plug it into a chat app to protect messages
+### 1. Encrypt Data
+Send a `POST` request to `/encrypt` with your plaintext data.
 
-Use it for secure file storage
+- **Endpoint**: `/encrypt`
+- **Method**: POST
+- **Request Body**:
+    ```json
+    {
+        "data": "Hello, Secure Sim!"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "ciphertext": "<encrypted_data>"
+    }
+    ```
 
-Pipe it into any backend requiring encryption + attestation
+### 2. Decrypt Data
+Send a `POST` request to `/decrypt` with the ciphertext.
 
-Runs in Docker with Gramine:
+- **Endpoint**: `/decrypt`
+- **Method**: POST
+- **Request Body**:
+    ```json
+    {
+        "ciphertext": "<encrypted_data>"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "plaintext": "Hello, Secure Sim!"
+    }
+    ```
 
-Portable, isolated, and enclave-secured
+### 3. Seal Data (Store Securely)
+Send a `POST` request to `/seal` to seal the data to disk.
 
-Easy to deploy on servers, edge devices, or private clouds
+- **Endpoint**: `/seal`
+- **Method**: POST
+- **Request Body**:
+    ```json
+    {
+        "data": "Sensitive File Content"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "status": "Data sealed successfully"
+    }
+    ```
 
-🧩 Integration Use-Cases
-Chat App: Send messages → Encrypt → Process inside Gramine → Return ciphertext → Store or transmit
+### 4. Unseal Data
+Send a `POST` request to `/unseal` to retrieve the sealed data.
 
-File Vault: Upload file → Seal and store securely → Retrieve later via unseal
+- **Endpoint**: `/unseal`
+- **Method**: POST
+- **Request Body**:
+    ```json
+    {
+        "sealed_data": "<sealed_data>"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "data": "Sensitive File Content"
+    }
+    ```
 
-Secure Analytics: Push logs → Process in-memory → Delete or seal results
+### 5. Optional: Health/Status Check
+Check the API’s health or view system metrics.
 
-Dev Tooling: Expose this as a CLI or SDK to use programmatically
+- **Endpoint**: `/status`, `/metrics`, `/health`
+- **Method**: GET
+- **Response**:
+    ```json
+    {
+        "status": "Healthy"
+    }
+    ```
 
-🏁 End Product Artifacts
-✅ Dockerfile: Gramine-compatible container with FastAPI + venv + encryption libs
+## Docker Usage
 
-✅ Makefile: One-liner deploy commands
+### 1. Build Docker Images
+To build the Docker image for Gramine and FastAPI:
+```bash
+docker build -t secure-sim-gramine ./gramine
+docker build -t secure-sim-backend ./backend
+```
 
-✅ app/: Python FastAPI code (modular structure)
+### 2. Run with Docker Compose
+To run the application with Docker Compose:
+```bash
+docker-compose up --build
+```
 
-✅ core/: Crypto and sealing logic
+This will automatically start the backend and the Gramine enclave in separate containers, and the API will be available at `http://localhost:8000`.
 
-✅ gramine/: Configs, manifest, helper files
+## Integration Example
 
-✅ README.md: Clear instructions for usage + integration examples
+You can integrate this API into your own backend or chat app. For example:
 
-✅ sample_client/: Example usage (CLI or Web)
+- **In a chat app**: Use the `/encrypt` endpoint before sending messages over the network. When receiving a message, use the `/decrypt` endpoint to read the message.
+- **In file storage**: Store encrypted files using `/seal` and retrieve them securely using `/unseal`.
 
-Would you like to define the folder structure and final module layout next?
+## Future Enhancements
+
+- **Add more encryption methods**: Integrate additional encryption algorithms for stronger or customizable security.
+- **Use cases**: Extend the API to support secure computation for other use cases like analytics or processing logs.
+
+## License
+
+MIT License
+
+---

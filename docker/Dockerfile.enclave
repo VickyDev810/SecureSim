@@ -1,0 +1,29 @@
+FROM gramineproject/gramine:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Python
+RUN apt-get update && apt-get install -y \
+    python3 python3-venv make build-essential  \
+    && rm -rf /var/lib/apt/lists/*
+    
+
+# Set workdir and copy code
+WORKDIR /secure-sim
+COPY core/ core/
+COPY gramine/ gramine/
+
+# Create venv and install dependencies
+RUN python3 -m venv venv && \
+    venv/bin/pip install cryptography
+
+# Pre-create encryption key (demo only)
+RUN mkdir -p /tmp && \
+    venv/bin/python -c "from cryptography.fernet import Fernet; open('/tmp/encryption.key','wb').write(Fernet.generate_key())"
+
+# Build Gramine manifest
+WORKDIR /secure-sim/gramine
+RUN make
+
+# Set entrypoint to run with Gramine
+WORKDIR /secure-sim

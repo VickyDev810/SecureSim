@@ -21,7 +21,7 @@ python.manifest: config/python.manifest.template
 	gramine-manifest \
 		-Dlog_level=$(GRAMINE_LOG_LEVEL) \
 		-Darch_libdir=$(ARCH_LIBDIR) \
-		-Dentrypoint="/opt/venv/bin/python3" \
+		-Dentrypoint="/secure-sim/venv/bin/python3" \
 		-Dra_type=$(RA_TYPE) \
 		$< >$@
 

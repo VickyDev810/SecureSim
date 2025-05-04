@@ -22,13 +22,13 @@ fs.mounts = [
   { path = "/lib", uri = "file:{{ gramine.runtimedir() }}" },
   { path = "{{ arch_libdir }}", uri = "file:{{ arch_libdir }}" },
   { path = "/usr/{{ arch_libdir }}", uri = "file:/usr/{{ arch_libdir }}" },
-  { path = "/secure-sim/venv/", uri = "file:/secure-sim/venv/" },
-  { path = "/secure-sim/core/", uri = "file:/secure-sim/core/"},
 {% for path in python.get_sys_path(entrypoint) %}
   { path = "{{ path }}", uri = "file:{{ path }}" },
 {% endfor %}
   { path = "{{ entrypoint }}", uri = "file:{{ entrypoint }}" },
   { path = "/etc/hosts", uri = "file:helper-files/hosts" },
+  { path = "/data/sealed.txt", uri = "file:/data/sealed.txt" },
+  { path = "/data/encryption.key", uri = "file:/data/encryption.key" },
   { type = "tmpfs", path = "/tmp" },
 ]
 
@@ -42,20 +42,19 @@ sgx.max_threads = {{ '1' if env.get('EDMM', '0') == '1' else '32' }}
 
 sgx.remote_attestation = "{{ ra_type }}"
 
+sgx.allowed_files = [
+  "file:/data/sealed.txt",
+]
+
 sgx.trusted_files = [
   "file:{{ entrypoint }}",
   "file:{{ gramine.runtimedir() }}/",
   "file:{{ arch_libdir }}/",
   "file:/usr/{{ arch_libdir }}/",
-  "file:/secure-sim/venv/",
-  "file:/secure-sim/venv/bin/",
-  "file:/secure-sim/venv/lib/",
-  "file:/secure-sim/venv/lib/python3.12/",
-  "file:/secure-sim/venv/lib/python3.12/site-packages/",
-
 {% for path in python.get_sys_path(entrypoint) %}
   "file:{{ path }}{{ '/' if path.is_dir() else '' }}",
 {% endfor %}
-  "file:/secure-sim/core/",
+  "file:core/",
   "file:/secure-sim/gramine/helper-files/",
+  "file:/data/encryption.key",
 ]

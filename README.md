@@ -174,3 +174,17 @@ You can integrate this API into your own backend or chat app. For example:
 MIT License
 
 ---
+
+
+# RUN COMMAND 
+╰─ ❯❯ docker run -it --rm --security-opt seccomp=unconfined secure-sim-enclave
+
+# RUN interactive mode inside docker
+docker run -it --rm \
+  --security-opt seccomp=unconfined \
+  --entrypoint /bin/bash \
+  -v "$PWD":/app \
+  secure-sim-enclave
+
+# Build Command
+docker build -f docker/Dockerfile.enclave -t secure-sim-enclave .

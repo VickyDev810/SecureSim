@@ -5,7 +5,7 @@ import base64
 import os
 
 # For demo; in production, manage this securely (e.g., sealed key)
-KEY_PATH = "/tmp/encryption.key"
+KEY_PATH = "/data/encryption.key"
 
 def load_key():
     if not os.path.exists(KEY_PATH):

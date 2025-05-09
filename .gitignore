@@ -1,2 +1,8 @@
 venv
 __pycache__
+idea.md
+node_modules
+.qodo
+certs
+messages
+python.manifest
